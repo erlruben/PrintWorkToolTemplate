@@ -132,7 +132,7 @@ a:hover { color: var(--accent); }
 /* =====================================================================
    App shell — persistent shop navigation beside the production workspace.
    ===================================================================== */
-.shell { display: flex; min-height: 100vh; }
+.shell { position: relative; display: flex; min-height: 100vh; }
 
 .sidebar {
   position: sticky; top: 0; height: 100vh;
@@ -203,6 +203,10 @@ a:hover { color: var(--accent); }
   font: inherit; font-size: 13px; color: var(--ink); text-align: left;
 }
 .user-menu-pop button:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.workspace-actions {
+  position: fixed; top: 2px; right: 24px; z-index: 40;
+  display: flex; align-items: center; gap: 4px; flex: none;
+}
 .workspace-actions .user-menu { flex: none; min-width: 0; }
 .workspace-actions .user-menu-trigger { width: auto; min-height: 44px; padding: 5px 8px; }
 .workspace-actions .user-menu-text { max-width: 220px; }
@@ -378,18 +382,17 @@ table.glance.flat .group-add-row:hover { background: transparent; }
     position: static; height: auto; width: auto; padding: 12px 14px;
     display: grid;
     grid-template-columns: 1fr auto;
-    grid-template-areas: "brand foot" "nav nav";
+    grid-template-areas: "brand actions" "nav nav";
     align-items: center;
     column-gap: 12px;
   }
   .sidebar-brand { grid-area: brand; padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
-  .sidebar-foot {
-    grid-area: foot; margin-top: 0; padding-top: 0; border-top: 0;
-    flex-direction: row; align-items: center; gap: 10px;
+  .workspace-actions {
+    position: relative; top: auto; right: auto; grid-area: actions; justify-self: end;
   }
+  .sidebar-foot { display: none; }
   .sidebar-chat-action { display: none !important; }
   .workspace-actions .user-menu-text { max-width: 22vw; }
-  .sidebar-credit { display: none; }
   .sidebar-nav {
     grid-area: nav; flex-direction: row; flex-wrap: nowrap;
     margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.10);
@@ -1740,7 +1743,7 @@ table.glance.flat tbody.drop-no { opacity: .45; }
 .notif-empty { padding: 28px 20px; text-align: center; font-size: 13px; color: var(--muted); }
 
 @media (max-width: 860px) {
-  .notif-panel { top: 168px; right: 12px; max-height: calc(100vh - 184px); }
+  .notif-panel { right: 12px; max-height: calc(100vh - 72px); }
 }
 @media (max-width: 480px) {
   .workspace-actions .user-menu-trigger { gap: 6px; }

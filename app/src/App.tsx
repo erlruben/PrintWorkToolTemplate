@@ -258,6 +258,29 @@ function AuthenticatedApp() {
           </div>
         </div>
 
+        <div className="workspace-actions">
+          <QuickSettings
+            active={tab === 'settings'}
+            onOpenSettings={() => setTab('settings')}
+          />
+          <NotifBell
+            unread={notif.unread + updates.notices.filter((r) => r.unread).length}
+            active={notifOpen}
+            onClick={() => setNotifOpen((o) => !o)}
+          />
+          <UserMenu
+            name={profile.full_name}
+            role={ROLE_LABEL[profile.role]}
+            initials={initials}
+            status={staffStatusOf(meLive)}
+            away={awayLabel(meLive)}
+            onSetStatus={() => setStatusOpen(true)}
+            onHelp={() => { setHelpView('home'); setTab('help'); }}
+            onTrash={() => setTab('trash')}
+            onSignOut={signOut}
+          />
+        </div>
+
         <nav className="sidebar-nav">
           {tabs.map((t) => (
             <button
@@ -296,28 +319,6 @@ function AuthenticatedApp() {
           <div className="workspace-context" aria-label="Workspace area">
             <span className="sidebar-context-mark" aria-hidden="true" />
             <span>Production floor</span>
-          </div>
-          <div className="workspace-actions">
-            <QuickSettings
-              active={tab === 'settings'}
-              onOpenSettings={() => setTab('settings')}
-            />
-            <NotifBell
-              unread={notif.unread + updates.notices.filter((r) => r.unread).length}
-              active={notifOpen}
-              onClick={() => setNotifOpen((o) => !o)}
-            />
-            <UserMenu
-              name={profile.full_name}
-              role={ROLE_LABEL[profile.role]}
-              initials={initials}
-              status={staffStatusOf(meLive)}
-              away={awayLabel(meLive)}
-              onSetStatus={() => setStatusOpen(true)}
-              onHelp={() => { setHelpView('home'); setTab('help'); }}
-              onTrash={() => setTab('trash')}
-              onSignOut={signOut}
-            />
           </div>
         </header>
         <div className="app-sheet">
