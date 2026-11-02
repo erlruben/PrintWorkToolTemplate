@@ -1,0 +1,24 @@
+# Secrets — never commit these
+.env
+.env.local
+*.env
+!.env.example
+
+# Local-only working notes
+NOTES.local.md
+*.local.md
+
+# Local agent and tooling files
+.agents/
+.claude/
+.taste-skill/
+.wrangler/
+
+# Local database backups (real production data — never commit)
+backups/
+
+node_modules/
+dist/
+
+# UI test screenshots (app/tests/ui/run.mjs)
+app/ui-shots/

@@ -1,0 +1,13 @@
+{
+  "name": "PrintFlow — Work Order Tracker",
+  "short_name": "PrintFlow",
+  "description": "Print-shop production tracking from order intake to release. Built by RECONTECH.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f2eb",
+  "theme_color": "#f5f2eb",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "printflow-work-order-template",
+  "private": true,
+  "description": "Repo root for Cloudflare Workers Builds — the app itself lives in app/.",
+  "scripts": {
+    "build": "npm ci --prefix app && npm run build:demo --prefix app",
+    "deploy": "npm run build && wrangler deploy",
+    "login": "wrangler login"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.1"
+  }
+}
