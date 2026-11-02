@@ -1606,7 +1606,7 @@ table.glance.flat tbody.drop-no { opacity: .45; }
 .notif-bell:hover { background: var(--hover); color: var(--ink); }
 .notif-bell.active { background: var(--hover); color: var(--ink); }
 .notif-badge {
-  position: absolute; top: -5px; right: -5px;
+  position: absolute; top: 0; right: -5px;
   min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
   background: var(--vim-red); color: #fff; font-size: 10px; font-weight: 700;
   display: inline-grid; place-items: center; box-shadow: 0 0 0 2px var(--frame, var(--bg));
