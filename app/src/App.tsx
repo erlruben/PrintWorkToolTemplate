@@ -132,8 +132,8 @@ function AuthenticatedApp() {
     if (profile.role === 'operator' && window.location.hash !== '#queue') setTab('queue');
   }, [profile]);
 
-  // The notifications inbox lives up here so its bell can sit beside the profile
-  // while the panel and toasts float over the whole app.
+  // The notifications inbox lives in the workspace header while its panel and
+  // toasts float over the whole app.
   const [notifOpen, setNotifOpen] = useState(false);
   const [chatRequest, setChatRequest] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -262,7 +262,26 @@ function AuthenticatedApp() {
         </nav>
 
         <div className="sidebar-foot">
-          <div className="sidebar-account-row">
+          <div className="sidebar-credit"><MadeBy tone="dark" /></div>
+        </div>
+      </aside>
+
+      <main className="content">
+        <header className="workspace-bar">
+          <div className="workspace-context" aria-label="Workspace area">
+            <span className="sidebar-context-mark" aria-hidden="true" />
+            <span>Production floor</span>
+          </div>
+          <div className="workspace-actions">
+            <QuickSettings
+              active={tab === 'settings'}
+              onOpenSettings={() => setTab('settings')}
+            />
+            <NotifBell
+              unread={notif.unread + updates.notices.filter((r) => r.unread).length}
+              active={notifOpen}
+              onClick={() => setNotifOpen((o) => !o)}
+            />
             <UserMenu
               name={profile.full_name}
               role={ROLE_LABEL[profile.role]}
@@ -274,27 +293,6 @@ function AuthenticatedApp() {
               onTrash={() => setTab('trash')}
               onSignOut={signOut}
             />
-            <div className="sidebar-account-actions">
-              <NotifBell
-                unread={notif.unread + updates.notices.filter((r) => r.unread).length}
-                active={notifOpen}
-                onClick={() => setNotifOpen((o) => !o)}
-              />
-              <QuickSettings
-                active={tab === 'settings'}
-                onOpenSettings={() => setTab('settings')}
-              />
-            </div>
-          </div>
-          <div className="sidebar-credit"><MadeBy tone="dark" /></div>
-        </div>
-      </aside>
-
-      <main className="content">
-        <header className="workspace-bar">
-          <div className="workspace-context" aria-label="Workspace area">
-            <span className="sidebar-context-mark" aria-hidden="true" />
-            <span>Production floor</span>
           </div>
         </header>
         <div className="app-sheet">

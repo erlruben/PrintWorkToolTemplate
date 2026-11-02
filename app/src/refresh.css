@@ -414,8 +414,6 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
   .sidebar-foot { border-top: 0; }
   .sidebar-nav { border-top-color: var(--line); }
   .workspace-bar { height: 44px; padding: 0 12px; }
-  .sidebar-account-row .user-menu { flex: 0 1 auto; }
-  .sidebar-account-actions .quick-settings-pop { top: calc(100% + 8px); bottom: auto; }
   .app-sheet { min-height: 0; border-radius: 12px; }
 }
 @media (max-width: 460px) {
@@ -423,5 +421,4 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
   .workspace-bar { margin-right: -6px; padding: 0 10px 0 12px; }
   .workspace-context { gap: 7px; font-size: 12px; }
   .workspace-context .sidebar-context-code { font-size: 9px; }
-  .sidebar-account-row .user-menu { flex: 0 0 auto; }
 }

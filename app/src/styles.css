@@ -169,9 +169,6 @@ a:hover { color: var(--accent); }
 .sidebar-nav button svg { flex: none; opacity: .85; }
 
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
-.sidebar-account-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
-.sidebar-account-row .user-menu { flex: 1 1 0; min-width: 0; }
-.sidebar-account-actions { display: flex; align-items: center; gap: 2px; flex: none; }
 .sidebar-avatar {
   width: 32px; height: 32px; border-radius: 50%; flex: none;
   display: grid; place-items: center;
@@ -206,6 +203,12 @@ a:hover { color: var(--accent); }
   font: inherit; font-size: 13px; color: var(--ink); text-align: left;
 }
 .user-menu-pop button:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.workspace-actions .user-menu { flex: none; min-width: 0; }
+.workspace-actions .user-menu-trigger { width: auto; min-height: 44px; padding: 5px 8px; }
+.workspace-actions .user-menu-text { max-width: 220px; }
+.workspace-actions .user-menu-pop {
+  top: calc(100% + 6px); right: 0; bottom: auto; left: auto; min-width: 184px;
+}
 .sidebar-credit { display: flex; justify-content: center; padding-top: 8px; }
 
 .content { flex: 1; min-width: 0; background: var(--bg); }
@@ -370,8 +373,7 @@ table.glance.flat .group-add-row:hover { background: transparent; }
 
 @media (max-width: 860px) {
   .shell { flex-direction: column; }
-  /* The sidebar becomes a top bar: brand on the left, the signed-in person
-     and Sign out in the upper right, the navigation full-width beneath. */
+  /* The sidebar becomes a top bar, with the navigation beneath the brand. */
   .sidebar {
     position: static; height: auto; width: auto; padding: 12px 14px;
     display: grid;
@@ -385,16 +387,8 @@ table.glance.flat .group-add-row:hover { background: transparent; }
     grid-area: foot; margin-top: 0; padding-top: 0; border-top: 0;
     flex-direction: row; align-items: center; gap: 10px;
   }
-  .sidebar-account-row { gap: 2px; }
-  .sidebar-account-row .user-menu { flex: 0 1 auto; }
   .sidebar-chat-action { display: none !important; }
-  .sidebar-account-actions .quick-settings-pop {
-    top: calc(100% + 8px); right: 0; bottom: auto;
-  }
-  .user-menu-text strong { max-width: 22vw; }
-  /* In the top bar the menu is at the top, so it opens downward and hugs the
-     right edge instead of stretching the whole trigger width. */
-  .user-menu-pop { top: calc(100% + 6px); bottom: auto; left: auto; right: 0; min-width: 168px; }
+  .workspace-actions .user-menu-text { max-width: 22vw; }
   .sidebar-credit { display: none; }
   .sidebar-nav {
     grid-area: nav; flex-direction: row; flex-wrap: nowrap;
@@ -410,7 +404,7 @@ table.glance.flat .group-add-row:hover { background: transparent; }
 /* Very narrow: hide the role line and let the avatar carry identity. */
 @media (max-width: 460px) {
   .user-menu-text span { display: none; }
-  .user-menu-text strong { max-width: 30vw; }
+  .workspace-actions .user-menu-text { max-width: 30vw; }
 }
 
 .wrap { max-width: 1240px; margin: 0 auto; padding: 22px 28px 40px; }
@@ -1613,7 +1607,7 @@ table.glance.flat tbody.drop-no { opacity: .45; }
   position: absolute; top: -5px; right: -5px;
   min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
   background: var(--vim-red); color: #fff; font-size: 10px; font-weight: 700;
-  display: inline-grid; place-items: center; box-shadow: 0 0 0 2px var(--ink);
+  display: inline-grid; place-items: center; box-shadow: 0 0 0 2px var(--frame, var(--bg));
 }
 
 /* The update announcement and appearance menu share the workspace header. */
@@ -1652,9 +1646,6 @@ table.glance.flat tbody.drop-no { opacity: .45; }
 .whatsnew-expand:hover { color: var(--ink); }
 .whatsnew-dismiss { flex: none; min-height: 44px; padding: 8px 12px; }
 .quick-settings { position: relative; flex: none; }
-.sidebar-account-actions .quick-settings-pop {
-  top: auto; right: 0; bottom: calc(100% + 8px);
-}
 .quick-settings-trigger {
   display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
   border: 0; border-radius: 9px; background: transparent;
@@ -1697,8 +1688,8 @@ table.glance.flat tbody.drop-no { opacity: .45; }
 
 .notif-backdrop { position: fixed; inset: 0; z-index: 60; }
 .notif-panel {
-  /* Opens above the profile, aligned within the sidebar/tabs column. */
-  position: fixed; left: 12px; bottom: 112px; z-index: 61;
+  /* Keep the inbox below the workspace-header controls. */
+  position: fixed; top: 56px; right: 16px; left: auto; bottom: auto; z-index: 61;
   /* Wide enough for the title, Mark all read, Clear all and × on one line. */
   width: 284px; max-width: calc(100vw - 24px); max-height: calc(100vh - 160px);
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;
@@ -1749,16 +1740,11 @@ table.glance.flat tbody.drop-no { opacity: .45; }
 .notif-empty { padding: 28px 20px; text-align: center; font-size: 13px; color: var(--muted); }
 
 @media (max-width: 860px) {
-  .notif-panel { top: 62px; right: 12px; left: auto; bottom: auto; max-height: calc(100vh - 82px); }
+  .notif-panel { top: 168px; right: 12px; max-height: calc(100vh - 184px); }
 }
 @media (max-width: 480px) {
-  .sidebar { grid-template-columns: minmax(0, 1fr) auto; }
-  .sidebar-brand { min-width: 0; gap: 6px; }
-  .sidebar-brand > div { min-width: 0; }
-  .sidebar-brand-org { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .user-menu-trigger { gap: 6px; }
-  .user-menu-text strong { max-width: 18vw; }
-  .notif-panel { right: 12px; left: auto; width: min(340px, calc(100vw - 24px)); top: 58px; }
+  .workspace-actions .user-menu-trigger { gap: 6px; }
+  .notif-panel { width: min(340px, calc(100vw - 24px)); }
 }
 
 /* Accounts — row actions are plain aligned text links, not boxed buttons. */
