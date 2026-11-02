@@ -1,8 +1,8 @@
 // Cloudflare Workers hosting (static assets only — no server code).
-// Workers Builds runs from the repo root: `npm run build` (builds app/), then
-// `npx wrangler deploy` uploads app/dist. Security headers: app/public/_headers.
+// Deploy the sample-only demo to its own development Worker, never the source
+// tracker's hosting. Security headers: app/public/_headers.
 {
-  "name": "printtemplate",
+  "name": "printworktooltemplate-dev",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./app/dist",

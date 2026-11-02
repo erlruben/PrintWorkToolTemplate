@@ -62,8 +62,10 @@ accounts before inviting real users.
   static-assets configuration. The root build command explicitly builds the
   sample-only demo (`VITE_DEMO=1`); it does not connect to Supabase or include
   real work data. From the repository root, run `npm install`, `npm run login`,
-  then `npm run deploy`. The deployment is named `printtemplate` and is
-  available at the `workers.dev` address Cloudflare assigns to your account.
+  then `npm run deploy`. This publishes to the separate
+  `printworktooltemplate-dev` Worker and is available at the `workers.dev`
+  address Cloudflare assigns to your account. It does not update the source
+  tracker's existing `printtemplate` Worker.
   To use real accounts and shared data instead, configure a separate Supabase
   project for this template and deploy only after reviewing the environment
   and access rules. Never use the source tracker's production services.
