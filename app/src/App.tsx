@@ -268,17 +268,6 @@ function AuthenticatedApp() {
             active={notifOpen}
             onClick={() => setNotifOpen((o) => !o)}
           />
-          <UserMenu
-            name={profile.full_name}
-            role={ROLE_LABEL[profile.role]}
-            initials={initials}
-            status={staffStatusOf(meLive)}
-            away={awayLabel(meLive)}
-            onSetStatus={() => setStatusOpen(true)}
-            onHelp={() => { setHelpView('home'); setTab('help'); }}
-            onTrash={() => setTab('trash')}
-            onSignOut={signOut}
-          />
         </div>
 
         <nav className="sidebar-nav">
@@ -310,6 +299,17 @@ function AuthenticatedApp() {
         </nav>
 
         <div className="sidebar-foot">
+          <UserMenu
+            name={profile.full_name}
+            role={ROLE_LABEL[profile.role]}
+            initials={initials}
+            status={staffStatusOf(meLive)}
+            away={awayLabel(meLive)}
+            onSetStatus={() => setStatusOpen(true)}
+            onHelp={() => { setHelpView('home'); setTab('help'); }}
+            onTrash={() => setTab('trash')}
+            onSignOut={signOut}
+          />
           <div className="sidebar-credit"><MadeBy tone="dark" /></div>
         </div>
       </aside>

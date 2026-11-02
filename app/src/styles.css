@@ -207,12 +207,6 @@ a:hover { color: var(--accent); }
   position: fixed; top: 2px; right: 24px; z-index: 40;
   display: flex; align-items: center; gap: 4px; flex: none;
 }
-.workspace-actions .user-menu { flex: none; min-width: 0; }
-.workspace-actions .user-menu-trigger { width: auto; min-height: 44px; padding: 5px 8px; }
-.workspace-actions .user-menu-text { max-width: 220px; }
-.workspace-actions .user-menu-pop {
-  top: calc(100% + 6px); right: 0; bottom: auto; left: auto; min-width: 184px;
-}
 .sidebar-credit { display: flex; justify-content: center; padding-top: 8px; }
 
 .content { flex: 1; min-width: 0; background: var(--bg); }
@@ -381,18 +375,23 @@ table.glance.flat .group-add-row:hover { background: transparent; }
   .sidebar {
     position: static; height: auto; width: auto; padding: 12px 14px;
     display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "brand actions" "nav nav";
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "brand profile actions" "nav nav nav";
     align-items: center;
     column-gap: 12px;
   }
   .sidebar-brand { grid-area: brand; padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+  .sidebar-foot { display: contents; }
+  .sidebar-foot .user-menu { grid-area: profile; min-width: 0; }
+  .sidebar-credit { display: none; }
   .workspace-actions {
     position: relative; top: auto; right: auto; grid-area: actions; justify-self: end;
   }
-  .sidebar-foot { display: none; }
   .sidebar-chat-action { display: none !important; }
-  .workspace-actions .user-menu-text { max-width: 22vw; }
+  .sidebar-foot .user-menu-text { max-width: 22vw; }
+  .sidebar-foot .user-menu-pop {
+    top: calc(100% + 6px); right: 0; bottom: auto; left: auto; min-width: 184px;
+  }
   .sidebar-nav {
     grid-area: nav; flex-direction: row; flex-wrap: nowrap;
     margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.10);
@@ -407,7 +406,7 @@ table.glance.flat .group-add-row:hover { background: transparent; }
 /* Very narrow: hide the role line and let the avatar carry identity. */
 @media (max-width: 460px) {
   .user-menu-text span { display: none; }
-  .workspace-actions .user-menu-text { max-width: 30vw; }
+  .sidebar-foot .user-menu-text { max-width: 30vw; }
 }
 
 .wrap { max-width: 1240px; margin: 0 auto; padding: 22px 28px 40px; }
