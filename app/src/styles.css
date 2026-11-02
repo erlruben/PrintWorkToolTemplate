@@ -375,18 +375,18 @@ table.glance.flat .group-add-row:hover { background: transparent; }
   .sidebar {
     position: static; height: auto; width: auto; padding: 12px 14px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    grid-template-areas: "brand profile actions" "nav nav nav";
+    grid-template-columns: minmax(0, 1fr) 44px 44px auto;
+    grid-template-areas: "brand settings notifications profile" "nav nav nav nav";
     align-items: center;
-    column-gap: 12px;
+    column-gap: 4px;
   }
   .sidebar-brand { grid-area: brand; padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
-  .sidebar-foot { display: contents; }
+  .workspace-actions, .sidebar-foot { display: contents; }
+  .workspace-actions .quick-settings { grid-area: settings; }
+  .workspace-actions .notif-bell { grid-area: notifications; }
   .sidebar-foot .user-menu { grid-area: profile; min-width: 0; }
+  .sidebar-foot .user-menu-trigger { width: auto; min-height: 44px; padding: 5px 6px; }
   .sidebar-credit { display: none; }
-  .workspace-actions {
-    position: relative; top: auto; right: auto; grid-area: actions; justify-self: end;
-  }
   .sidebar-chat-action { display: none !important; }
   .sidebar-foot .user-menu-text { max-width: 22vw; }
   .sidebar-foot .user-menu-pop {
