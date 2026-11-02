@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { isConfigured, isDemo } from './lib/supabase';
-import DemoBar from './components/DemoBar';
+import DemoBar, { type DemoDevice } from './components/DemoBar';
 import { useAwaitingJobs, useNotifications, useProfiles, useSchemaCheck, useSettings } from './lib/data';
 import { usePush } from './lib/push';
 import { effectiveVolume, usePrintAlarmHere } from './lib/sound';
@@ -78,6 +78,31 @@ function Setup() {
           Full walkthrough in <code>SETUP.md</code>.
         </p>
       </div></div>
+    </div>
+  );
+}
+
+function DemoPreview() {
+  const [device, setDevice] = useState<DemoDevice>('computer');
+  const [frameVersion, setFrameVersion] = useState(0);
+  const frameWidths: Record<DemoDevice, number> = { phone: 390, tablet: 768, computer: 1280 };
+
+  return (
+    <div className="demo-preview-shell">
+      <DemoBar
+        device={device}
+        onDeviceChange={setDevice}
+        onRoleChange={() => setFrameVersion((version) => version + 1)}
+      />
+      <main className="demo-preview-stage">
+        <iframe
+          key={frameVersion}
+          className={`demo-preview-frame ${device}`}
+          src={`/?devicePreview=1&device=${device}`}
+          title={`${device[0].toUpperCase()}${device.slice(1)} preview`}
+          style={{ width: frameWidths[device] }}
+        />
+      </main>
     </div>
   );
 }
@@ -383,5 +408,7 @@ function AuthenticatedApp() {
 
 export default function App() {
   const previewOnly = import.meta.env.DEV && new URLSearchParams(window.location.search).get('login') !== '1' && !isDemo;
-  return <>{isDemo && <DemoBar />}{previewOnly ? <PreviewHome /> : <AuthenticatedApp />}</>;
+  const devicePreview = new URLSearchParams(window.location.search).has('devicePreview');
+  if (isDemo && !devicePreview) return <DemoPreview />;
+  return <>{previewOnly ? <PreviewHome /> : <AuthenticatedApp />}</>;
 }

@@ -1,6 +1,7 @@
 # Security headers for static hosting.
-# No page of this app is meant to be framed (clickjacking), browsers must not
-# guess file types, and cross-site requests only learn the origin, never the page.
+# Only same-origin framing is allowed for the built-in responsive demo preview.
+# Browsers must not guess file types, and cross-site requests only learn the
+# origin, never the page.
 # HTTPS only, remembered for a year; no includeSubDomains.
 # The page runs only its own scripts and Google's sign-in / Picker scripts,
 # talks to the configured Supabase project and
@@ -8,12 +9,12 @@
 # /theme.js). React's style attributes need 'unsafe-inline' for styles only.
 # If a new outside service is added to the app, add it here too.
 /*
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: blob: https://*.supabase.co https://drive.google.com https://*.googleusercontent.com https://*.gstatic.com https://*.google.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.googleapis.com https://content.googleapis.com https://accounts.google.com https://apis.google.com https://dns.google; frame-src 'self' https://accounts.google.com https://docs.google.com https://drive.google.com https://content.googleapis.com; worker-src 'self'; manifest-src 'self'; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: blob: https://*.supabase.co https://drive.google.com https://*.googleusercontent.com https://*.gstatic.com https://*.google.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.googleapis.com https://content.googleapis.com https://accounts.google.com https://apis.google.com https://dns.google; frame-src 'self' https://accounts.google.com https://docs.google.com https://drive.google.com https://content.googleapis.com; worker-src 'self'; manifest-src 'self'; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
 
 # The service worker must always be fresh, or a stale one keeps serving an old app.
 /sw.js

@@ -255,9 +255,10 @@ table.glance tbody tr { transition: background .1s ease; }
 .teamchat-badge { background: var(--red-fill); }
 :root[data-theme="dark"] .problem-chip { background: rgba(255, 90, 90, .16); }
 
-/* ---------- demo mode strip (no Supabase project yet) ---------- */
+/* ---------- demo mode strip and responsive preview ---------- */
+.demo-preview-shell { display: flex; flex-direction: column; width: 100%; height: 100dvh; }
 .demo-bar {
-  position: sticky; top: 0; z-index: 60;
+  position: relative; z-index: 60; flex: none;
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px;
   padding: 7px 16px; font-size: 13px;
   background: var(--sidebar); color: rgba(247, 243, 233, .78);
@@ -265,9 +266,23 @@ table.glance tbody tr { transition: background .1s ease; }
 }
 .demo-bar strong { color: #f58a5b; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .demo-bar-note { color: rgba(247, 243, 233, .58); }
-.demo-bar-role { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
-.demo-bar-role select { width: auto; padding: 4px 8px; font-size: 13px; border-radius: 7px; background: #29342d; border-color: rgba(255, 255, 255, .16); color: #fffdfa; }
-.demo-bar-role select:focus { background: #29342d; }
+.demo-bar-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin-left: auto; }
+.demo-bar-role, .demo-bar-device { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.demo-bar-role select, .demo-bar-device select {
+  width: auto; padding: 4px 8px; font-size: 13px; border-radius: 7px;
+  background: #29342d; border-color: rgba(255, 255, 255, .16); color: #fffdfa;
+}
+.demo-bar-role select:focus, .demo-bar-device select:focus { background: #29342d; }
+.demo-preview-stage {
+  display: flex; justify-content: center; flex: 1; min-height: 0; overflow: auto;
+  padding: 12px; background: var(--frame, #eeeae1);
+}
+.demo-preview-frame {
+  display: block; flex: none; height: 100%; border: 0; background: var(--bg);
+}
+.demo-preview-frame.phone, .demo-preview-frame.tablet {
+  border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-md);
+}
 
 /* Original PrintFlow treatment: warm production paper, quiet panels, and
    orange controls that read like clear shop-floor actions. */
@@ -321,7 +336,11 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
 :root[data-theme="dark"] .preview-banner a { color: var(--accent); }
 @media (max-width: 560px) {
   .demo-bar-note { display: none; }
-  .demo-bar-role { margin-left: 0; }
+  .demo-bar { gap: 6px 10px; padding: 7px 10px; }
+  .demo-bar-controls { gap: 6px 8px; }
+  .demo-bar-role, .demo-bar-device { gap: 5px; }
+  .demo-bar-role select, .demo-bar-device select { padding: 4px 6px; }
+  .demo-preview-stage { justify-content: flex-start; padding: 8px; }
 }
 @media (max-width: 860px) {
   .sidebar { width: auto; padding: 12px 14px; }
