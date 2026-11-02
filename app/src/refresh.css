@@ -431,6 +431,7 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
   .content { min-height: 0; }
   .sidebar { border-bottom: 0; }
   .sidebar-foot { border-top: 0; }
+  .workspace-actions { position: relative; top: auto; right: auto; display: contents; }
   .sidebar-nav { border-top-color: var(--line); }
   .workspace-bar { height: 44px; padding: 0 12px; }
   .app-sheet { min-height: 0; border-radius: 12px; }
