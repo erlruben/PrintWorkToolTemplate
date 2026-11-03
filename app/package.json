@@ -13,7 +13,8 @@
     "test:api": "node tests/api.mjs",
     "test:roles": "node tests/roles.mjs",
     "test:ui": "node tests/ui/run.mjs ui-shots --roles --sizes=desktop,tablet,phone,small",
-    "test:memory": "node tests/ui/memory.mjs 30"
+    "test:memory": "node tests/ui/memory.mjs 30",
+    "test:scrolled": "node tests/ui/scrolled.mjs ui-shots/scrolled"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

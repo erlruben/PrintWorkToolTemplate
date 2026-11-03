@@ -493,3 +493,14 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
 label.field > span, div.field > span:first-child { font-size: 12px; letter-spacing: 0; text-transform: none; }
 /* nothing under the 11px floor */
 .status-pill, .archived-chip, .client-chip, .pq-field-l, .pq-section-label { font-size: 11px; }
+
+/* The settings and notification buttons are pinned to the window on wider
+   screens (.workspace-actions is position: fixed). Keep the bar they sit on
+   pinned too, with an opaque ground, so page content scrolls under the bar
+   instead of under the buttons. */
+@media (min-width: 861px) {
+  .workspace-bar { position: sticky; top: 0; z-index: 39; background: var(--frame, #eeeae1); }
+  /* The buttons live inside the sticky sidebar, which is its own stacking
+     layer: lift that layer above the bar or the bar hides them. */
+  .sidebar { z-index: 41; }
+}
