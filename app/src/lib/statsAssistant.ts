@@ -167,7 +167,7 @@ const SUPPLY: Intent<SupplyCtx>[] = [
     id: "moves",
     ask: "What came in and what was used?",
     keys: ["received","used","usage","delivery","dumating","nagamit"],
-    reply: (c) => `In the ${c.period}: ${c.s.received} received and ${c.s.used} used.`,
+    reply: (c) => `In the ${c.period}: ${c.s.receipts} ${c.s.receipts === 1 ? "delivery" : "deliveries"} received and ${c.s.usages} usage ${c.s.usages === 1 ? "entry" : "entries"}.`,
   },
 ];
 

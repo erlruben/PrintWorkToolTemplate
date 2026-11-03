@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { daysUntil, PERIODS, TODAY, type Period } from "../lib/dashboardStats";
-import type { WorkOrder } from "../lib/types";
+import { waitingForClient, type WorkOrder } from "../lib/types";
 
 // Building blocks shared by the role dashboards: the date header with its period pills, a headline figure, and a job list. They use the Workload styles (workload.css).
 
@@ -66,10 +66,14 @@ export function Kpi({
 export function DueChip({
   due,
   today,
+  waiting = false,
 }: {
   due: string | null;
   today: string;
+  /** Waiting on the client: not late, whatever the date says (same rule as isOverdue). */
+  waiting?: boolean;
 }) {
+  if (waiting) return <span className="wl-due">Waiting on client</span>;
   if (!due) return null;
   const d = daysUntil(due, today);
   let text: string;
@@ -99,7 +103,7 @@ export function JobRows({
             {o.client_name}
             <small>{o.description}</small>
           </span>
-          <DueChip due={o.date_due} today={today} />
+          <DueChip due={o.date_due} today={today} waiting={waitingForClient(o)} />
         </li>
       ))}
     </ul>

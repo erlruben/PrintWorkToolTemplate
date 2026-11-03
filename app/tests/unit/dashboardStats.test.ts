@@ -86,13 +86,15 @@ describe("Dashboard stats", () => {
       { item_id: "a", site: "office", movement_type: "usage", quantity_delta: -3, created_at: "2026-10-25T00:00:00Z" },
       { item_id: "a", site: "office", movement_type: "receipt", quantity_delta: 50, created_at: "2026-09-01T00:00:00Z" },
     ] as InventoryMovement[];
-    const stats = supplyStats(items, stock, movements, new Date("2026-10-01T00:00:00Z"));
+    const stats = supplyStats(items, stock, movements, "2026-10-01T00:00:00Z");
     expect(stats.items).toBe(1);
     expect(stats.low.length).toBe(1);
     expect(stats.low[0].site).toBe("office");
     expect(stats.low[0].quantity).toBe(1);
-    expect(stats.received).toBe(10);
-    expect(stats.used).toBe(3);
+    // Counts of movements: a bottle and a roll cannot be added together.
+    expect(stats.receipts).toBe(1);
+    expect(stats.usages).toBe(1);
+    expect(stats.lowItems).toBe(1);
     expect(stats.recent[0].created_at).toBe("2026-10-25T00:00:00Z");
   });
 });

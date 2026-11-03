@@ -5,6 +5,8 @@
  */
 
 import { afterPrint, waitingForClient, type WorkOrder } from "./types";
+import { addDays, countInto, dayBuckets, monthBuckets, type Bucket } from "./chartMath";
+import { phDay } from "./credits";
 import { isLowStock, type InventoryItem, type InventoryMovement, type InventoryStock } from "./inventory";
 
 export const OPEN = ["todo", "in_progress"] as const;
@@ -125,11 +127,16 @@ export interface LowStockLine {
 export interface SupplyStats {
   items: number;
   low: LowStockLine[];
-  received: number;
-  used: number;
+  lowItems: number;
+  receipts: number;
+  usages: number;
   recent: InventoryMovement[];
 }
 
+/**
+ * The stockroom in the period. Received and Used count movements (deliveries
+ * and usage entries), because quantities of different items cannot be added.
+ */
 export function supplyStats(
   items: InventoryItem[],
   stock: InventoryStock[],
@@ -151,29 +158,31 @@ export function supplyStats(
     }))
     .sort((a, b) => a.quantity - b.quantity || a.item.name.localeCompare(b.item.name));
 
-  const since = new Date(sinceIso);
-  let received = 0;
-  let used = 0;
+  const sinceTimestamp = Date.parse(sinceIso);
+  let receipts = 0;
+  let usages = 0;
   for (const m of movements) {
-    const mDate = new Date(m.created_at);
-    if (mDate < since) continue;
+    if (Date.parse(m.created_at) < sinceTimestamp) continue;
     if (m.movement_type === 'receipt') {
-      received += m.quantity_delta;
+      receipts += 1;
     } else if (m.movement_type === 'usage') {
-      used += Math.abs(m.quantity_delta);
+      usages += 1;
     }
   }
 
   const recent = movements
     .slice()
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
     .slice(0, 8);
+
+  const lowItems = new Set(lowStockLines.map(l => l.item.id)).size;
 
   return {
     items: itemCount,
     low: lowStockLines,
-    received,
-    used,
+    lowItems,
+    receipts,
+    usages,
     recent
   };
 }
@@ -195,9 +204,46 @@ export const TODAY = new Intl.DateTimeFormat("en-US", {
 });
 
 export function periodStart(p: Period): string {
-  const now = new Date();
-  if (p === "all") return "1970-01-01T00:00:00+08:00";
-  const days = p === "30" ? 30 : 90;
-  const past = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  return past.toISOString();
+  return windowStartIso(p, phDay(new Date().toISOString()) ?? "");
+}
+
+/** Return the first date included in the window for a given period.
+ *  For the "all" period, return `null`. Otherwise the window is exactly N calendar days ending `today`, so compute the start date by subtracting `N - 1` days from `today`. */
+export function windowFirstDay(p: Period, today: string): string | null {
+  if (p === "all") return null;
+  const daysToSubtract = Number(p) - 1;
+  return addDays(today, -daysToSubtract);
+}
+
+/** Return the ISO string for the start of the window for a given period.
+ *  For the "all" period, return `1970-01-01T00:00:00+08:00`. Otherwise combine `windowFirstDay` with a midnight UTC+8 timestamp. */
+export function windowStartIso(p: Period, today: string): string {
+  if (p === "all") {
+    return "1970-01-01T00:00:00+08:00";
+  }
+  const firstDay = windowFirstDay(p, today);
+  return `${firstDay}T00:00:00+08:00`;
+}
+
+/** Categorise orders into buckets based on the completion window for a given period.
+ *  The window is constructed using `windowFirstDay`.
+ *  If the period is '30' use 3-day buckets, if '90' use 10-day buckets; otherwise use monthly buckets starting from the earliest finished date that is not after `today`. */
+export function finishedTrend(
+  orders: Pick<WorkOrder, "first_finished_on" | "date_finished">[],
+  p: Period,
+  today: string,
+): Bucket[] {
+  const days = orders.map(o => o.first_finished_on ?? o.date_finished);
+  let buckets: Bucket[];
+  if (p === "30") {
+    buckets = dayBuckets(windowFirstDay(p, today)!, today, 3);
+  } else if (p === "90") {
+    buckets = dayBuckets(windowFirstDay(p, today)!, today, 10);
+  } else {
+    const first = [...days]
+      .filter(d => d && d <= today)
+      .sort()[0] ?? today;
+    buckets = monthBuckets(first, today);
+  }
+  return countInto(buckets, days);
 }

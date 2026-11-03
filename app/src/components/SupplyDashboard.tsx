@@ -15,34 +15,41 @@ export default function SupplyDashboard() {
   const [stock, setStock] = useState<InventoryStock[]>([]);
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Movements are fetched for the whole period (newest first), so Received and
+  // Used count every delivery and usage in it — not just the latest page.
   useEffect(() => {
     let cancelled = false;
     Promise.all([
       supabase.from("inventory_items").select("*").order("name"),
       supabase.from("inventory_stock").select("*"),
-      supabase.from("inventory_movements").select("*").order("created_at", { ascending: false }).limit(150),
+      supabase.from("inventory_movements").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(5000),
     ]).then(([a, b, c]) => {
       if (cancelled) return;
+      const failed = a.error ?? b.error ?? c.error;
+      setLoadError(failed ? `Could not load the stockroom: ${failed.message}` : null);
       setItems((a.data ?? []) as InventoryItem[]);
       setStock((b.data ?? []) as InventoryStock[]);
       setMovements((c.data ?? []) as InventoryMovement[]);
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [since]);
 
   const s = useMemo(() => supplyStats(items, stock, movements, since), [items, stock, movements, since]);
 
-  const nameOf = (id: string) => items.find((i) => i.id === id)?.name ?? "Unknown item";
+  const itemOf = (id: string) => items.find((i) => i.id === id);
 
   return (
     <div className="wrap wl">
       <DashHead eyebrow={`Hi ${profile?.full_name.split(" ")[0] ?? "there"} · the stockroom`} period={period} onPeriod={setPeriod} />
       <section className="wl-kpis">
-        <Kpi label="Running low" value={s.low.length} unit="items" tone="hero" badge="!" />
-        <Kpi label="Items tracked" value={s.items} unit="items" />
-        <Kpi label="Received" value={formatStock(s.received)} unit="units" />
-        <Kpi label="Used" value={formatStock(s.used)} unit="units" />
+        <Kpi label="Running low" value={s.lowItems} unit={s.lowItems === 1 ? "item" : "items"} tone={s.lowItems > 0 ? "alert" : undefined} />
+        <Kpi label="Items tracked" value={s.items} unit={s.items === 1 ? "item" : "items"} />
+        <Kpi label="Received" value={s.receipts} unit={s.receipts === 1 ? "delivery" : "deliveries"} />
+        <Kpi label="Used" value={s.usages} unit={s.usages === 1 ? "entry" : "entries"} />
       </section>
+      {loadError && <p className="error" role="alert">{loadError}</p>}
       <section className="wl-lists">
         <div className="wl-card">
           <div className="wl-card-head">
@@ -59,7 +66,7 @@ export default function SupplyDashboard() {
                   <span className="wl-row-name">
                     {l.item.name}
                     <small>
-                      {SITE_NAME[l.site]} · reorder at {l.item.low_stock_threshold} {l.item.unit}
+                      {l.item.unit} left · {SITE_NAME[l.site]} · reorder at {formatStock(l.item.low_stock_threshold)}
                     </small>
                   </span>
                 </li>
@@ -70,19 +77,19 @@ export default function SupplyDashboard() {
         <div className="wl-card">
           <div className="wl-card-head">
             <h2>Latest movements</h2>
-            <span className="wl-card-note">Newest first</span>
+            <span className="wl-card-note">Newest first, in the period</span>
           </div>
           {s.recent.length === 0 ? (
-            <p className="wl-empty">No movements yet.</p>
+            <p className="wl-empty">No deliveries or usage in this period.</p>
           ) : (
             <ul className="wl-rows">
               {s.recent.map((m) => (
                 <li className="wl-row wl-job" key={m.id}>
                   <span className="wl-row-pct">{m.quantity_delta > 0 ? "+" : ""}{formatStock(m.quantity_delta)}</span>
                   <span className="wl-row-name">
-                    {nameOf(m.item_id)}
+                    {itemOf(m.item_id)?.name ?? "Unknown item"}
                     <small>
-                      {MOVEMENT_NAME[m.movement_type]} · {SITE_NAME[m.site]} · {new Date(m.created_at).toLocaleDateString("en-PH", { month: "short", day: "numeric" })}
+                      {itemOf(m.item_id)?.unit ?? ""} · {MOVEMENT_NAME[m.movement_type]} · {SITE_NAME[m.site]} · {new Date(m.created_at).toLocaleDateString("en-PH", { month: "short", day: "numeric" })}
                     </small>
                   </span>
                 </li>

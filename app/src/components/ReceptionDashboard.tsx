@@ -17,7 +17,7 @@ export default function ReceptionDashboard() {
       <DashHead eyebrow={`Hi ${profile?.full_name.split(" ")[0] ?? "there"} · the front desk`} />
       <section className="wl-kpis">
         <Kpi label="New today" value={s.openedToday} unit="jobs" />
-        <Kpi label="Ready to release" value={s.readyForRelease} unit="jobs" tone="hero" badge="✓" />
+        <Kpi label="Ready to release" value={s.readyForRelease} unit="jobs" tone="hero" />
         <Kpi label="Waiting on client" value={s.waitingOnClient} unit="jobs" tone={s.waitingOnClient > 0 ? "warn" : undefined} />
         <Kpi label="Past due" value={s.overdue} unit="jobs" tone={s.overdue > 0 ? "alert" : undefined} />
       </section>

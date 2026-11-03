@@ -34,10 +34,10 @@ export default function ArtistDashboard() {
         onPeriod={setPeriod}
       />
       <section className="wl-kpis">
-        <Kpi label="My points" value={s.points} unit="points" tone="hero" badge="★" />
+        <Kpi label="My points" value={s.points} unit="points" tone="hero" />
         <Kpi label="In progress" value={s.inProgress} unit="jobs" />
         <Kpi
-          label="Due in 3 days"
+          label="Due within 3 days"
           value={s.dueSoon}
           unit="jobs"
           tone={s.dueSoon > 0 ? "warn" : undefined}

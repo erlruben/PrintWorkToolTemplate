@@ -442,3 +442,41 @@ table.glance tbody tr:hover { background: color-mix(in srgb, var(--accent-bg) 55
   .workspace-context { gap: 7px; font-size: 12px; }
   .workspace-context .sidebar-context-code { font-size: 9px; }
 }
+
+/* ---------- 2026-11-03 review: chart accuracy, touch targets, phone clearance ---------- */
+/* Increase top padding for trend component */
+.wl .wl-trend { padding-top: 10px; }
+
+/* Center first and last axis labels on gridlines */
+.wl .wl-trend-scale span:first-child, .wl .wl-trend-scale span:last-child { transform: translateY(-50%); }
+
+/* Keep x-axis dates at the 11px floor on phones */
+@media (max-width: 640px) { .wl .wl-trend-x { font-size: 11px; } }
+
+/* Allow card header to wrap with gaps */
+.wl .wl-card-head { flex-wrap: wrap; row-gap: 4px; }
+
+/* Balance text in card header headings */
+.wl .wl-card-head h2 { text-wrap: balance; }
+
+/* Prevent card notes from wrapping */
+.wl .wl-card-note { white-space: nowrap; }
+
+/* Increase touch target on coarse pointer devices */
+@media (pointer: coarse) {
+  .report-tabs .chip-pick, .wl .wl-range button { min-height: 44px; }
+  .whatsnew-link, .whatsnew-expand { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* Add bottom padding to clear floating chat button */
+@media (max-width: 860px) { .wrap.wrap { padding-bottom: 88px; } }
+
+/* Set table header styling */
+.credit-table table.glance th { text-transform: none; letter-spacing: 0; font-size: 12px; }
+/* Align non-first columns to the right */
+.credit-table table.glance th:not(:first-child), .credit-table table.glance td:not(:first-child) { text-align: right; }
+
+/* On phones the card note may need its own line(s); never let it run under the card edge. */
+@media (max-width: 640px) { .wl .wl-card-note { white-space: normal; } }
+/* Job and stock rows: the subline (unit, site, date) wraps instead of losing its end. */
+.wl .wl-job .wl-row-name small { white-space: normal; }

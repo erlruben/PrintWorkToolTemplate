@@ -6,7 +6,7 @@ import type { WorkOrder } from "../../src/lib/types";
 const job = { wo_number: "WO-1041", client_name: "Bayview Bakery", date_due: "2026-10-31" } as WorkOrder;
 const artist = { role: "artist", period: "last 30 days", s: { points: 8, todo: 1, inProgress: 1, dueSoon: 1, overdue: 0, jobs: [job] } } as AskContext;
 const operator = { role: "operator", period: "last 30 days", s: { points: 2, waiting: 2, printing: 0, queue: [] }, printer: "Cooling down" } as AskContext;
-const supply = { role: "supply", period: "last 30 days", s: { items: 8, low: [{ item: { name: "Grommets", unit: "box" }, site: "office", quantity: 3 }], received: 450, used: 65, recent: [] }, stock: [{ name: "Tarpaulin 13oz", site: "office", quantity: 50, unit: "roll" }, { name: "Grommets", site: "office", quantity: 3, unit: "box" }] } as AskContext;
+const supply = { role: "supply", period: "last 30 days", s: { items: 8, low: [{ item: { name: "Grommets", unit: "box" }, site: "office", quantity: 3 }], lowItems: 1, receipts: 4, usages: 12, recent: [] }, stock: [{ name: "Tarpaulin 13oz", site: "office", quantity: 50, unit: "roll" }, { name: "Grommets", site: "office", quantity: 3, unit: "box" }] } as AskContext;
 const team = { role: "team", period: "last 30 days", inProgress: 2, waiting: 4, overdue: 1, artists: [{ name: "Mika Reyes", total: 5, open: 1, done: 4 }, { name: "Paolo Santos", total: 7, open: 1, done: 6 }], printers: [{ name: "Jun Navarro", printed: 2 }] } as AskContext;
 
 describe("statistics assistant", () => {

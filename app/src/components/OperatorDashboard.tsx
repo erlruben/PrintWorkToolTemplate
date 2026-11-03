@@ -62,9 +62,8 @@ export default function OperatorDashboard() {
         <Kpi
           label="Jobs printed"
           value={s.points}
-          unit="points"
+          unit={s.points === 1 ? "job" : "jobs"}
           tone="hero"
-          badge="★"
         />
         <Kpi
           label="Waiting for you"

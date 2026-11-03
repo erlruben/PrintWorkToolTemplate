@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { useCreditEvents, useFileCreditEventsSince, useProfiles, useWorkOrders } from '../lib/data';
 import { credits, phDay } from '../lib/credits';
 import { useSession } from '../lib/sessionContext';
-import { isAdminRole, SITE_LABEL, STATUS_LABEL, waitingForClient } from '../lib/types';
+import { isAdminRole, SITE_LABEL, STATUS_LABEL } from '../lib/types';
+import { finishedTrend, isOverdue, windowFirstDay, windowStartIso } from '../lib/dashboardStats';
 import { ProductionFlow, ShareBar, TrendBars } from './WorkloadCharts';
 import Report from './Report';
 import '../workload.css';
@@ -32,12 +33,15 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
   const { profile } = useSession();
   const [window, setWindow] = useState<Window>('30');
 
-  const inWindow = useMemo(() => {
-    if (window === 'all') return orders;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - Number(window));
-    return orders.filter((o) => new Date(o.date_given + 'T00:00:00') >= cutoff);
-  }, [orders, window]);
+  // One window for every number on this screen: the last 30 or 90 shop days
+  // (Philippine time), today included — the same days the credits, the file
+  // credits and the chart count.
+  const [today] = useState(() => phDay(new Date().toISOString()) ?? '');
+  const firstDay = windowFirstDay(window, today);
+  const inWindow = useMemo(
+    () => (firstDay ? orders.filter((o) => o.date_given >= firstDay) : orders),
+    [orders, firstDay],
+  );
 
   // Deactivated artists still appear while they have work in the window —
   // dropping them would quietly rewrite the period's history.
@@ -58,23 +62,12 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
   const events = useCreditEvents(stamp);
   const credit = useMemo(() => {
     const names = new Map(profiles.map((p) => [p.id, p.full_name]));
-    let since: string | null = null;
-    if (window !== 'all') {
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - Number(window));
-      since = phDay(cutoff.toISOString());
-    }
-    return credits(orders, (day) => !!day && (!since || day >= since), (id) => (id ? names.get(id) ?? 'Unknown' : 'Unknown'), events);
-  }, [orders, profiles, window, events]);
+    return credits(orders, (day) => !!day && (!firstDay || day >= firstDay), (id) => (id ? names.get(id) ?? 'Unknown' : 'Unknown'), events);
+  }, [orders, profiles, firstDay, events]);
 
   // 1 credit per file an artist adds to any task — the same selected window as
   // everything else here (Last 30/90 days, or all time).
-  const fileCreditsSince = useMemo(() => {
-    if (window === 'all') return '1970-01-01T00:00:00+08:00';
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - Number(window));
-    return cutoff.toISOString();
-  }, [window]);
+  const fileCreditsSince = windowStartIso(window, today);
   const { rows: fileCreditRows } = useFileCreditEventsSince(fileCreditsSince);
   const fileCreditsByArtist = useMemo(() => {
     const by = new Map<string, number>();
@@ -152,12 +145,12 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
   const totalPrinted = perOperator.reduce((s, o) => s + o.printed, 0);
 
   const waiting = orders.filter((o) => o.status === 'awaiting_print');
-  const openJobs = inWindow.filter((o) => o.status === 'in_progress');
-
-  // A job waiting for the client's approval is not late: the hold-up is not the artist's.
-  const overdue = openJobs.filter(
-    (o) => o.date_due && new Date(o.date_due + 'T23:59:59') < new Date() && !waitingForClient(o),
-  );
+  // Live counts, like Waiting to print: a job given before the window that is
+  // still open (or late) must not drop off the screen. Late counts To Do jobs
+  // too and skips jobs waiting for the client's approval — the same rule as
+  // every other dashboard (isOverdue).
+  const openJobs = orders.filter((o) => o.status === 'in_progress');
+  const overdue = orders.filter((o) => isOverdue(o, today));
 
 
   // The status split of the jobs given in the window — the same mix the top
@@ -179,46 +172,10 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
     ? Math.round(((statusMix.finished + statusMix.awaiting_print + statusMix.printed) / inWindow.length) * 100)
     : 0;
 
-  // Jobs finished per time bucket across the window. The window is sliced into
-  // about eight buckets whatever its length, so the bars stay readable from a
-  // week to all-time.
-  const trend = useMemo(() => {
-    const DAY = 86400000;
-    const now = new Date();
-    now.setHours(23, 59, 59, 999);
-
-    let start: Date;
-    if (window === 'all') {
-      const times = orders
-        .filter((o) => o.date_finished)
-        .map((o) => new Date(o.date_finished + 'T00:00:00').getTime());
-      start = times.length ? new Date(Math.min(...times)) : new Date(now.getTime() - 29 * DAY);
-    } else {
-      start = new Date(now.getTime() - (Number(window) - 1) * DAY);
-    }
-    start.setHours(0, 0, 0, 0);
-
-    const spanDays = Math.max(1, Math.round((now.getTime() - start.getTime()) / DAY) + 1);
-    const bucketDays = Math.max(1, Math.ceil(spanDays / 8));
-
-    const buckets: { label: string; value: number; from: number; to: number }[] = [];
-    for (let t = start.getTime(); t <= now.getTime(); t += bucketDays * DAY) {
-      const d = new Date(t);
-      buckets.push({
-        label: `${d.getMonth() + 1}/${d.getDate()}`,
-        value: 0,
-        from: t,
-        to: t + bucketDays * DAY,
-      });
-    }
-    for (const o of orders) {
-      if (!o.date_finished) continue;
-      const ft = new Date(o.date_finished + 'T12:00:00').getTime();
-      const b = buckets.find((bk) => ft >= bk.from && ft < bk.to);
-      if (b) b.value += 1;
-    }
-    return buckets.map((b) => ({ label: b.label, value: b.value }));
-  }, [orders, window]);
+  // Jobs whose art was first finished, per equal time bucket ending today:
+  // 3-day buckets for 30 days, 10-day for 90, calendar months for all time.
+  // No partial bucket, so no bar under-reads.
+  const trend = useMemo(() => finishedTrend(orders, window, today), [orders, window, today]);
 
 
   return (
@@ -246,7 +203,7 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
       <section className="wl-kpis">
         <div className="wl-card wl-kpi">
           <span className="wl-kpi-k">In progress</span>
-          <span className="wl-kpi-n">{openJobs.length}<small>{openJobs.length === 1 ? 'job' : 'jobs'}</small></span>
+          <span className="wl-kpi-n">{openJobs.length}<small>{openJobs.length === 1 ? 'job' : 'jobs'} now</small></span>
         </div>
         <div className="wl-card wl-kpi hero">
           <span className="wl-kpi-k">Art done</span>
@@ -258,14 +215,14 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
         </div>
         <div className={`wl-card wl-kpi${overdue.length ? ' alert' : ''}`}>
           <span className="wl-kpi-k">Past due date</span>
-          <span className="wl-kpi-n">{overdue.length}<small>{overdue.length === 1 ? 'job' : 'jobs'}</small></span>
+          <span className="wl-kpi-n">{overdue.length}<small>{overdue.length === 1 ? 'job' : 'jobs'} now</small></span>
         </div>
       </section>
 
       <section className="wl-grid">
         <div className="wl-card wl-timeline">
           <div className="wl-card-head">
-            <h2>Jobs finished over time</h2>
+            <h2>Art finished over time</h2>
             <span className="wl-card-note">{trend.reduce((s, b) => s + b.value, 0)} finished</span>
           </div>
           <TrendBars data={trend} empty="No finished jobs in this period yet." />
@@ -305,7 +262,7 @@ function TeamDashboard({ onOpenQueue }: { onOpenQueue: () => void }) {
                   <span className="wl-row-meta">
                     <span><b>{a.total}</b> total</span>
                     <span><b>{a.open}</b> in progress</span>
-                    <span title="Files this artist has added to tasks in the period — 1 credit each, taken back if the file is later removed."><b>{a.finished}</b> art done</span>
+                    <span title="Files this artist has added to tasks in the period — 1 credit each, taken back if the file is later removed."><b>{a.finished}</b> {a.finished === 1 ? 'file' : 'files'} added</span>
                   </span>
                 </li>
               );

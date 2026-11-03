@@ -83,7 +83,11 @@ function Setup() {
 }
 
 function DemoPreview() {
-  const [device, setDevice] = useState<DemoDevice>('computer');
+  // Open on the visitor's own kind of screen: a phone visitor sees the phone
+  // layout, not a cropped desktop one. They can still switch.
+  const [device, setDevice] = useState<DemoDevice>(() =>
+    window.innerWidth < 700 ? 'phone' : window.innerWidth < 1100 ? 'tablet' : 'computer',
+  );
   const [frameVersion, setFrameVersion] = useState(0);
   const frameWidths: Record<DemoDevice, number> = { phone: 390, tablet: 768, computer: 1280 };
 
@@ -100,7 +104,7 @@ function DemoPreview() {
           className={`demo-preview-frame ${device}`}
           src={`/?devicePreview=1&device=${device}`}
           title={`${device[0].toUpperCase()}${device.slice(1)} preview`}
-          style={{ width: frameWidths[device] }}
+          style={{ width: frameWidths[device], maxWidth: device === 'computer' ? undefined : '100%' }}
         />
       </main>
     </div>
