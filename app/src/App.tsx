@@ -232,13 +232,14 @@ function AuthenticatedApp() {
     return <TwoFactorChallenge userId={profile.id} onVerified={() => setStepUp('ok')} onSignOut={signOut} />;
   }
 
-  const tabs: { id: Tab; label: string; icon: ComponentType }[] = [
-    { id: 'workload', label: 'All Statistics', icon: IconChart },
-    { id: 'orders', label: 'Work Orders', icon: IconList },
-    { id: 'queue', label: 'Print Queue', icon: IconMonitor },
-    { id: 'inventory', label: 'Inventory', icon: IconInventory },
+  // `short` is the name shown in the phone tab bar, where the full name gets cut off.
+  const tabs: { id: Tab; label: string; short: string; icon: ComponentType }[] = [
+    { id: 'workload', label: 'All Statistics', short: 'Stats', icon: IconChart },
+    { id: 'orders', label: 'Work Orders', short: 'Orders', icon: IconList },
+    { id: 'queue', label: 'Print Queue', short: 'Queue', icon: IconMonitor },
+    { id: 'inventory', label: 'Inventory', short: 'Inventory', icon: IconInventory },
     ...(isAdminRole(profile.role)
-      ? [{ id: 'accounts' as Tab, label: 'Admin Tools', icon: IconUsers }]
+      ? [{ id: 'accounts' as Tab, label: 'Admin Tools', short: 'Admin', icon: IconUsers }]
       : []),
   ];
 
@@ -279,10 +280,12 @@ function AuthenticatedApp() {
             <button
               key={t.id}
               aria-current={tab === t.id}
+              aria-label={t.id === 'queue' && awaiting > 0 ? `${t.label}, ${awaiting} waiting to print` : t.label}
               onClick={() => setTab(t.id)}
             >
               <t.icon />
-              <span>{t.label}</span>
+              <span className="nav-label-full">{t.label}</span>
+              <span className="nav-label-short" aria-hidden="true">{t.short}</span>
               {t.id === 'queue' && awaiting > 0 && (
                 // PRD section 4: the operator is told immediately — from any screen.
                 <span className="sidebar-badge" aria-label={`${awaiting} waiting to print`}>
